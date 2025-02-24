@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Table</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Transaction Table</h1>
+
+    <form id="transaction-form">
+        <label for="serial-number">Serial Number:</label>
+        <input type="text" id="serial-number" required>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" required>
+
+        <label for="agent-name">Agent Name:</label>
+        <input type="text" id="agent-name" required>
+
+        <label for="total-amount">Total Amount:</label>
+        <input type="number" id="total-amount" required>
+
+        <label for="paid-amount">Paid Amount:</label>
+        <input type="number" id="paid-amount" required>
+
+        <button type="submit">Add Row</button>
+    </form>
+
+    <table id="transaction-table">
+        <thead>
+            <tr>
+                <th>Serial No.</th>
+                <th>Date</th>
+                <th>Agent Name</th>
+                <th>Total Amount</th>
+                <th>Paid Amount</th>
+                <th>Balance</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dynamic rows will be inserted here -->
+        </tbody>
+    </table>
+
+    <button id="excel-btn">Convert to Excel</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
