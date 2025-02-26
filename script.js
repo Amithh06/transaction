@@ -1,131 +1,205 @@
-document.getElementById("transaction-form").addEventListener("submit", function(event) {
-  event.preventDefault();
+$(document).ready(function() {
+  // Handle form submission
+  $('#inputForm').submit(function(e) {
+      e.preventDefault();
 
-  const serialNumber = document.getElementById("serial-number").value;
-  const date = document.getElementById("date").value;
-  const agentName = document.getElementById("agent-name").value;
-  const totalAmount = parseFloat(document.getElementById("total-amount").value);
-  const paidAmount = parseFloat(document.getElementById("paid-amount").value);
-  const balanceAmount = totalAmount - paidAmount;
+      // Get input values
+      const date = $('#date').val();
+      const agentName = $('#agentName').val();
+      const totalAmount = parseFloat($('#totalAmount').val());
+      const paidAmount = parseFloat($('#paidAmount').val());
+      const balance = totalAmount - paidAmount;
+      const utrId = $('#utrId').val();
 
-  // Convert the date to day-month-year format (e.g., 05-02-2025)
-  const formattedDate = new Date(date).toLocaleDateString("en-GB");
+      // Add data to the first table
+      const row = `<tr class="collection-row">
+          <td class="agentName">${agentName}</td>
+          <td class="totalAmount">${totalAmount}</td>
+          <td class="paidAmount">${paidAmount}</td>
+          <td class="balance">${balance}</td>
+          <td class="utrId">${utrId}</td>
+          <td><button class="editBtn">Edit</button></td>
+          <td><button class="clearBtn">Clear</button></td>
+      </tr>`;
+      $('#collectionTable tbody').append(row);
 
-  const table = document.getElementById("transaction-table").getElementsByTagName("tbody")[0];
+      // Add data to second table (automatically fill Agent Name and Balance)
+      const secondTableRow = `<tr class="agent-row">
+          <td class="agentName">${agentName}</td>
+          <td class="balance">${balance}</td>
+          <td><input type="number" class="sugama" value="0"></td>
+          <td><input type="number" class="ganesh" value="0"></td>
+          <td><input type="number" class="others" value="0"></td>
+          <td><input type="number" class="luggage" value="0"></td>
+          <td><input type="number" class="total" value="0" readonly></td>
+          <td><input type="number" class="acPay" value="0"></td>
+          <td><input type="text" class="remark"></td>
+          <td><button class="saveBtn">Save</button></td>
+      </tr>`;
+      $('#agentDataTable tbody').append(secondTableRow);
 
-  const newRow = table.insertRow();
-
-  newRow.innerHTML = `
-      <td>${serialNumber}</td>
-      <td>${formattedDate}</td>
-      <td>${agentName}</td>
-      <td>${totalAmount.toFixed(2)}</td>
-      <td>${paidAmount.toFixed(2)}</td>
-      <td>${balanceAmount.toFixed(2)}</td>
-      <td>
-          <button onclick="editRow(this)">Edit</button>
-          <button onclick="deleteRow(this)">Delete</button>
-      </td>
-  `;
-
-  document.getElementById("transaction-form").reset();
-  updateTotals();
-});
-
-function editRow(button) {
-  const row = button.parentElement.parentElement;
-  const cells = row.getElementsByTagName("td");
-
-  document.getElementById("serial-number").value = cells[0].textContent;
-  document.getElementById("date").value = cells[1].textContent;
-  document.getElementById("agent-name").value = cells[2].textContent;
-  document.getElementById("total-amount").value = parseFloat(cells[3].textContent);
-  document.getElementById("paid-amount").value = parseFloat(cells[4].textContent);
-
-  deleteRow(button);
-}
-
-function deleteRow(button) {
-  const row = button.parentElement.parentElement;
-  row.remove();
-  updateTotals();
-}
-
-function updateTotals() {
-  const table = document.getElementById("transaction-table").getElementsByTagName("tbody")[0];
-  const rows = table.rows;
-
-  const dateTotals = {};
-
-  // Initialize totals for each date
-  for (let row of rows) {
-      const date = row.cells[1].textContent;
-      const totalAmount = parseFloat(row.cells[3].textContent);
-      const paidAmount = parseFloat(row.cells[4].textContent);
-      const balanceAmount = parseFloat(row.cells[5].textContent);
-
-      if (!dateTotals[date]) {
-          dateTotals[date] = {
-              totalAmount: 0,
-              paidAmount: 0,
-              balanceAmount: 0,
-              rows: []
-          };
-      }
-
-      dateTotals[date].totalAmount += totalAmount;
-      dateTotals[date].paidAmount += paidAmount;
-      dateTotals[date].balanceAmount += balanceAmount;
-      dateTotals[date].rows.push(row);
-  }
-
-  // Add totals for each date and each column
-  let lastRow = document.getElementById("transaction-table").getElementsByTagName("tfoot")[0];
-
-  if (!lastRow) {
-      lastRow = document.createElement("tfoot");
-      document.getElementById("transaction-table").appendChild(lastRow);
-  }
-
-  lastRow.innerHTML = ""; // Clear previous totals
-
-  // Create total rows for each date
-  for (let date in dateTotals) {
-      const totals = dateTotals[date];
-      const totalRow = document.createElement("tr");
-
-      totalRow.innerHTML = `
-          <td colspan="3" style="border: 1px solid black; padding: 5px;">Total for ${date}</td>
-          <td style="border: 1px solid black; padding: 5px;">${totals.totalAmount.toFixed(2)}</td>
-          <td style="border: 1px solid black; padding: 5px;">${totals.paidAmount.toFixed(2)}</td>
-          <td style="border: 1px solid black; padding: 5px;">${totals.balanceAmount.toFixed(2)}</td>
-          <td style="border: 1px solid black;"></td> <!-- No action column in totals row -->
-      `;
-      lastRow.appendChild(totalRow);
-  }
-}
-
-document.getElementById("excel-btn").addEventListener("click", function() {
-  const table = document.getElementById("transaction-table");
-  let tableHTML = table.outerHTML;
-
-  // Remove the "Actions" column (Edit/Delete buttons) from the HTML before export
-  tableHTML = tableHTML.replace(/<td>.*?<\/td>/g, function(match) {
-      return match.replace(/<button.*?>.*?<\/button>/g, '');  // Remove the Edit/Delete buttons from rows
+      // Clear form fields
+      $('#inputForm')[0].reset();
   });
 
-  // Add inline styling to add borders to each cell in the table
-  tableHTML = tableHTML.replace(/<table>/, '<table border="1" style="border-collapse: collapse;">');
-  tableHTML = tableHTML.replace(/<td>/g, '<td style="border: 1px solid black; padding: 5px;">');
-  tableHTML = tableHTML.replace(/<th>/g, '<th style="border: 1px solid black; padding: 5px;">');
+  // Handle row clearing in the collection table
+  $(document).on('click', '.clearBtn', function() {
+      $(this).closest('tr').remove();
+  });
 
-  const uri = "data:application/vnd.ms-excel;base64,";
-  const base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))); };
-  const format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }); };
+  // Handle row editing in the collection table
+  $(document).on('click', '.editBtn', function() {
+      const row = $(this).closest('tr');
+      const agentName = row.find('td:eq(0)').text();
+      const totalAmount = row.find('td:eq(1)').text();
+      const paidAmount = row.find('td:eq(2)').text();
+      const balance = row.find('td:eq(3)').text();
+      const utrId = row.find('td:eq(4)').text();
 
-  const html = format(tableHTML, {});
-  const link = document.createElement("a");
-  link.href = uri + base64(html);
-  link.download = "transactions.xls";
-  link.click();
+      $('#agentName').val(agentName);
+      $('#totalAmount').val(totalAmount);
+      $('#paidAmount').val(paidAmount);
+      $('#utrId').val(utrId);
+
+      // Remove row after editing
+      row.remove();
+  });
+
+  // Handle calculation for total in second table when input changes
+  $(document).on('input', '.sugama, .ganesh, .others, .luggage, .acPay', function() {
+      const row = $(this).closest('tr');
+      const sugama = parseFloat(row.find('.sugama').val()) || 0;
+      const ganesh = parseFloat(row.find('.ganesh').val()) || 0;
+      const others = parseFloat(row.find('.others').val()) || 0;
+      const luggage = parseFloat(row.find('.luggage').val()) || 0;
+      const acPay = parseFloat(row.find('.acPay').val()) || 0;
+
+      const total = sugama + ganesh + others + luggage + acPay;
+      row.find('.total').val(total);
+  });
+
+  // Handle save button functionality for the second table
+  $(document).on('click', '.saveBtn', function() {
+      const row = $(this).closest('tr');
+      const sugama = row.find('.sugama').val();
+      const ganesh = row.find('.ganesh').val();
+      const others = row.find('.others').val();
+      const luggage = row.find('.luggage').val();
+      const acPay = row.find('.acPay').val();
+      const remark = row.find('.remark').val();
+
+      // Logic to save data (This could be to an array, localStorage, or server)
+      alert(`Data Saved for ${row.find('.agentName').text()}: Sugama - ${sugama}, Ganesh - ${ganesh}, Others - ${others}, Luggage - ${luggage}, A/C Pay - ${acPay}, Remark - ${remark}`);
+  });
+
+  // Excel Export functionality
+  $('#downloadExcelBtn').click(function() {
+      // Prepare data for Table 1 (Collection Table)
+      const collectionTableData = [];
+      $('#collectionTable tbody tr').each(function() {
+          const row = $(this);
+          const rowData = [
+              row.find('.agentName').text(),
+              row.find('.totalAmount').text(),
+              row.find('.paidAmount').text(),
+              row.find('.balance').text(),
+              row.find('.utrId').text()
+          ];
+          collectionTableData.push(rowData);
+      });
+
+      // Prepare data for Table 2 (Agent Data Table)
+      const agentDataTableData = [];
+      $('#agentDataTable tbody tr').each(function() {
+          const row = $(this);
+          const rowData = [
+              row.find('.agentName').text(),
+              row.find('.balance').text(),
+              row.find('.sugama').val(),
+              row.find('.ganesh').val(),
+              row.find('.others').val(),
+              row.find('.luggage').val(),
+              row.find('.total').val(),
+              row.find('.acPay').val(),
+              row.find('.remark').val()
+          ];
+          agentDataTableData.push(rowData);
+      });
+
+      // Create a new workbook with two sheets
+      const wb = XLSX.utils.book_new();
+
+      // Add Collection Table (Sheet1)
+      const ws1 = XLSX.utils.aoa_to_sheet([["Agent Name", "Total Amount", "Paid Amount", "Balance", "UTR ID"], ...collectionTableData]);
+
+      // Apply styles to the header and borders for Table 1
+      const headerStyle = {
+          font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12 },  // White text with bold and size 12
+          fill: { fgColor: { rgb: "4F81BD" } },  // Blue background for header
+          border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } }
+          }
+      };
+
+      // Apply the header style to each header cell
+      for (let col = 0; col < 5; col++) {
+          ws1[XLSX.utils.encode_cell({r: 0, c: col})].s = headerStyle;
+      }
+
+      // Apply borders and alternating row colors
+      for (let r = 1; r < collectionTableData.length + 1; r++) {
+          for (let c = 0; c < 5; c++) {
+              const cellRef = XLSX.utils.encode_cell({r, c});
+              if (!ws1[cellRef]) continue;
+              ws1[cellRef].s = {
+                  border: {
+                      top: { style: "thin", color: { rgb: "000000" } },
+                      left: { style: "thin", color: { rgb: "000000" } },
+                      bottom: { style: "thin", color: { rgb: "000000" } },
+                      right: { style: "thin", color: { rgb: "000000" } }
+                  }
+              };
+              if (r % 2 === 0) {
+                  ws1[cellRef].s.fill = { fgColor: { rgb: "D9E1F2" } };  // Light blue background for even rows
+              }
+          }
+      }
+
+      XLSX.utils.book_append_sheet(wb, ws1, "Collection Table");
+
+      // Add Agent Data Table (Sheet2)
+      const ws2 = XLSX.utils.aoa_to_sheet([["Agent Name", "Balance", "Sugama", "Ganesh", "Others", "Luggage", "Total", "A/C Pay", "Remark"], ...agentDataTableData]);
+
+      // Apply styles to the header and borders for Table 2
+      for (let col = 0; col < 9; col++) {
+          ws2[XLSX.utils.encode_cell({r: 0, c: col})].s = headerStyle;
+      }
+
+      // Apply borders and alternating row colors for Table 2
+      for (let r = 1; r < agentDataTableData.length + 1; r++) {
+          for (let c = 0; c < 9; c++) {
+              const cellRef = XLSX.utils.encode_cell({r, c});
+              if (!ws2[cellRef]) continue;
+              ws2[cellRef].s = {
+                  border: {
+                      top: { style: "thin", color: { rgb: "000000" } },
+                      left: { style: "thin", color: { rgb: "000000" } },
+                      bottom: { style: "thin", color: { rgb: "000000" } },
+                      right: { style: "thin", color: { rgb: "000000" } }
+                  }
+              };
+              if (r % 2 === 0) {
+                  ws2[cellRef].s.fill = { fgColor: { rgb: "D9E1F2" } };  // Light blue background for even rows
+              }
+          }
+      }
+
+      XLSX.utils.book_append_sheet(wb, ws2, "Agent Data");
+
+      // Generate Excel file and prompt download
+      XLSX.writeFile(wb, "Agent_Report.xlsx");
+  });
 });

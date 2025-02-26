@@ -3,50 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Table</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Agent Daily Collection Report</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+
 </head>
 <body>
-    <h1>Transaction Table</h1>
 
-    <form id="transaction-form">
-        <label for="serial-number">Serial Number:</label>
-        <input type="text" id="serial-number" required>
+    <div class="container">
+        <h1>Geeta Tours and Travels - Agent Daily Collection Report</h1>
 
-        <label for="date">Date:</label>
-        <input type="date" id="date" required>
+        <!-- Form for Input -->
+        <div class="form-container">
+            <h2>Enter Collection Data</h2>
+            <form id="inputForm">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required><br><br>
 
-        <label for="agent-name">Agent Name:</label>
-        <input type="text" id="agent-name" required>
+                <label for="agentName">Agent Name:</label>
+                <input type="text" id="agentName" name="agentName" required><br><br>
 
-        <label for="total-amount">Total Amount:</label>
-        <input type="number" id="total-amount" required>
+                <label for="totalAmount">Total Amount:</label>
+                <input type="number" id="totalAmount" name="totalAmount" required><br><br>
 
-        <label for="paid-amount">Paid Amount:</label>
-        <input type="number" id="paid-amount" required>
+                <label for="paidAmount">Paid Amount:</label>
+                <input type="number" id="paidAmount" name="paidAmount" required><br><br>
 
-        <button type="submit">Add Row</button>
-    </form>
+                <label for="utrId">UTR ID:</label>
+                <input type="text" id="utrId" name="utrId" required><br><br>
 
-    <table id="transaction-table">
-        <thead>
-            <tr>
-                <th>Serial No.</th>
-                <th>Date</th>
-                <th>Agent Name</th>
-                <th>Total Amount</th>
-                <th>Paid Amount</th>
-                <th>Balance</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Dynamic rows will be inserted here -->
-        </tbody>
-    </table>
+                <button type="submit">Add Data</button>
+            </form>
+        </div>
 
-    <button id="excel-btn">Convert to Excel</button>
+        <h2>Collection Table (First Table)</h2>
+        <table id="collectionTable">
+            <thead>
+                <tr>
+                    <th>Agent Name</th>
+                    <th>Total Amount</th>
+                    <th>Paid Amount</th>
+                    <th>Balance</th>
+                    <th>UTR ID</th>
+                    <th>Edit</th>
+                    <th>Clear</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be added here dynamically -->
+            </tbody>
+        </table>
 
-    <script src="script.js"></script>
+        <h2>Agent Data (Second Table)</h2>
+        <table id="agentDataTable">
+            <thead>
+                <tr>
+                    <th>Agent Name</th>
+                    <th>Balance</th>
+                    <th>Sugama</th>
+                    <th>Ganesh</th>
+                    <th>Others</th>
+                    <th>Luggage</th>
+                    <th>Total</th>
+                    <th>A/C Pay</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be added here dynamically -->
+            </tbody>
+        </table>
+
+        <div>
+            <button id="downloadExcelBtn">Download Excel</button>
+        </div>
+
+    </div>
+
+    <script src="scripts.js"></script>
 </body>
 </html>
